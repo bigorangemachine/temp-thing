@@ -1,0 +1,11 @@
+node_modules/
+tests/
+README.md
+concourse-ci
+.git
+.gitignore
+build.yml
+test.yml
+manifest.yml
+.eslintrc
+.eslintignore

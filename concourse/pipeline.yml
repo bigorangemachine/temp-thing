@@ -1,0 +1,37 @@
+resources:
+  - name: git-master-branch
+    type: git
+    source:
+      uri: git@github.com:bigorangemachine/temp-thing
+      branch: master
+      private_key: ((github-private-key))
+  - name: cf-deploy
+    type: cf
+    source:
+      api: https://api.run.pivotal.io
+      username: ((cf-username))
+      password: ((cf-password))
+      organization: ((cf-org))
+      space: ((cf-dev-space))
+
+
+jobs:
+  - name: cf-deploy
+    plan:
+      - get: git-master-branch
+        trigger: true
+      - task: build-server
+        input_mapping:
+          server-resource: git-master-branch
+        output_mapping:
+          output-resource: built-server
+        file: git-dev-server/build.yml
+        params:
+          NODE_ENV: development
+      - put: cf-deploy
+        params:
+          path: built-server
+          manifest: built-server/manifest.yml
+          current_app_name: brians-fun-api
+          environment_variables:
+            NODE_ENV: "development"

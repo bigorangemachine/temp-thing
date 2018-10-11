@@ -1,0 +1,10 @@
+---
+applications:
+- name: brians-fun-api
+  memory: 128M
+  instances: 1
+  command: npm run start
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+  services:
+    - bd-temp-test
+    - BD-TEST-TestAwsKeys
