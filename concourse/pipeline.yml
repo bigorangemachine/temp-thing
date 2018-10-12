@@ -1,3 +1,9 @@
+resource_types:
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: jtarchie/pr
+
 resources:
   - name: git-master-branch
     type: git
@@ -25,7 +31,7 @@ jobs:
           server-resource: git-master-branch
         output_mapping:
           output-resource: built-server
-        file: git-dev-server/build.yml
+        file: git-master-branch/build.yml
         params:
           NODE_ENV: development
       - put: cf-deploy
