@@ -11,6 +11,13 @@ resources:
       uri: git@github.com:bigorangemachine/temp-thing
       branch: master
       private_key: ((github-private-key))
+  - name: git-pull-request
+    type: git
+    source:
+      access_token: ((github-access-token))
+      private_key: ((github-private-key))
+      uri: git@github.com:bigorangemachine/temp-thing
+      repo: bigorangemachine/temp-thing
   - name: cf-deploy
     type: cf
     source:
@@ -22,6 +29,33 @@ resources:
 
 
 jobs:
+  - name: pr-tests
+    plan:
+      - get: git-pull-request
+        trigger: true
+      - task: build-server
+        input_mapping:
+          server-resource: pr-tests
+        output_mapping:
+          output-resource: built-server
+        file: git-pull-request/build.yml
+      - task: test-server
+        input_mapping:
+          server-resource: built-server
+        file: built-server/test.yml
+        params:
+          NODE_ENV: test
+        on_success:
+          put: git-pull-request
+          params:
+            path: pr-tests
+            status: success
+        on_failure:
+          put: git-pull-request
+          params:
+            path: pr-tests
+            status: failure
+
   - name: cf-deploy
     plan:
       - get: git-master-branch
