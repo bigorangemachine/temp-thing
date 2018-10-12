@@ -9,10 +9,8 @@ image_resource:
 
 inputs:
   - name: server-resource
-outputs:
-  - name: output-resource
 caches:
-  - path: output-resource/node_modules
+  - path: tested-resource/node_modules
 
 run:
   path: sh
@@ -20,7 +18,5 @@ run:
   - -exc
   - |
     cd server-resource
-    npm install --no-progress
-    npm install --no-progress --dev-only
-    npm run build
-    cp -r . ../output-resource
+    npm run lint
+    npm run test
