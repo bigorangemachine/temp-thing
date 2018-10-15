@@ -12,7 +12,7 @@ resources:
       branch: master
       private_key: ((github-private-key))
   - name: git-pull-request
-    type: git
+    type: pull-request
     source:
       access_token: ((github-access-token))
       private_key: ((github-private-key))
@@ -35,25 +35,25 @@ jobs:
         trigger: true
       - task: build-server
         input_mapping:
-          server-resource: pr-tests
+          server-resource: git-pull-request
         output_mapping:
           output-resource: built-server
         file: git-pull-request/build.yml
       - task: test-server
         input_mapping:
           server-resource: built-server
-        file: built-server/test.yml
+        file: git-pull-request/test.yml
         params:
           NODE_ENV: test
         on_success:
           put: git-pull-request
           params:
-            path: pr-tests
+            path: git-pull-request
             status: success
         on_failure:
           put: git-pull-request
           params:
-            path: pr-tests
+            path: git-pull-request
             status: failure
 
   - name: cf-deploy
@@ -66,6 +66,12 @@ jobs:
         output_mapping:
           output-resource: built-server
         file: git-master-branch/build.yml
+        params:
+          NODE_ENV: development
+      - task: test-server
+        input_mapping:
+          server-resource: built-server
+        file: built-server/test.yml
         params:
           NODE_ENV: development
       - put: cf-deploy
